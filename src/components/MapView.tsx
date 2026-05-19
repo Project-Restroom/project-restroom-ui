@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { EstablishmentWithCoords } from '@/lib/types'
-import { avgRating, ratingColor } from '@/lib/types'
+import { avgRating, ratingColor, getDeviceContext } from '@/lib/types'
 import { establishments } from '@/lib/coordinates'
 import ReviewCard from './ReviewCard'
 
@@ -63,7 +63,7 @@ function FitBounds({
 
 export default function MapView() {
   const [userPos, setUserPos] = useState<[number, number] | null>(null)
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  const { isMobile } = getDeviceContext()
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
