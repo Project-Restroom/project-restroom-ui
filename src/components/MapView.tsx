@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { EstablishmentWithCoords } from '@/lib/types'
@@ -25,19 +25,50 @@ function createMarkerIcon(rating: number) {
   })
 }
 
-function FitBounds({ data }: { data: EstablishmentWithCoords[] }) {
+function createUserIcon() {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:20px;height:20px;border-radius:50%;
+      background:#2563eb;border:3px solid white;
+      box-shadow:0 0 0 3px rgba(37,99,235,.4);
+    "></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  })
+}
+
+function FitBounds({
+  data,
+  userPos,
+}: {
+  data: EstablishmentWithCoords[]
+  userPos: [number, number] | null
+}) {
   const map = useMap()
   useEffect(() => {
-    if (data.length > 1) {
+    if (userPos) {
+      map.setView(userPos, 13)
+    } else if (data.length > 1) {
       map.fitBounds(data.map((e) => [e.lat, e.lon]), { padding: [50, 50] })
     } else if (data.length === 1) {
       map.setView([data[0].lat, data[0].lon], 14)
     }
-  }, [data, map])
+  }, [data, userPos, map])
   return null
 }
 
 export default function MapView() {
+  const [userPos, setUserPos] = useState<[number, number] | null>(null)
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+      () => {},
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }, [])
+
   return (
     <MapContainer
       center={[39.4187, -76.2944]}
@@ -49,7 +80,8 @@ export default function MapView() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://openmaptiles.org/">OpenMapTiles</a>'
         url="https://tiles.liberty-rider.com/styles/osm-liberty/{z}/{x}/{y}.png"
       />
-      <FitBounds data={establishments} />
+      <FitBounds data={establishments} userPos={userPos} />
+      {userPos && <Marker position={userPos} icon={createUserIcon()} />}
       {establishments.map((e) => (
         <Marker
           key={e.establishment}
