@@ -65,7 +65,7 @@ export default function MapView() {
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
       () => {},
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: false, maximumAge: 10000 }
     )
   }, [])
 
