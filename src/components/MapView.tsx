@@ -48,11 +48,11 @@ function FitBounds({
   const map = useMap()
   useEffect(() => {
     if (userPos) {
-      map.setView(userPos, 13)
+      map.setView(userPos, 11)
     } else if (data.length > 1) {
-      map.fitBounds(data.map((e) => [e.lat, e.lon]), { padding: [50, 50] })
+      map.fitBounds(data.map((e) => [e.lat, e.lon]), { padding: [50, 50], maxZoom: 11 })
     } else if (data.length === 1) {
-      map.setView([data[0].lat, data[0].lon], 14)
+      map.setView([data[0].lat, data[0].lon], 11)
     }
   }, [data, userPos, map])
   return null
@@ -71,8 +71,8 @@ export default function MapView() {
 
   return (
     <MapContainer
-      center={[39.4187, -76.2944]}
-      zoom={12}
+      center={[39.2908816,-76.610759]}
+      zoom={8}
       style={{ height: '100%', width: '100%' }}
       zoomControl={true}
     >
