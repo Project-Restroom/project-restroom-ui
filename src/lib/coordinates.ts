@@ -11,6 +11,7 @@ const preResolved: Record<string, Coord> = {
   'Grocery Bargain Outlet': { lat: 39.4343, lon: -76.3158 },
   'Edgewood Prime Thrift': { lat: 39.4348, lon: -76.3126 },
   "Mom's Organic Market": { lat: 39.3677, lon: -76.4533 },
+  'Petco': { lat: 39.3678, lon: -76.4535 },
 }
 
 const osmTypes: Record<string, 'node' | 'way' | 'relation'> = {
@@ -98,3 +99,5 @@ export async function getAllEstablishments(): Promise<EstablishmentWithCoords[]>
   }
   return results
 }
+
+

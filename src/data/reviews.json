@@ -57,5 +57,19 @@
         "notes": "Solid, eco-friendly setup with great cleanliness, though the single-occupancy wait times can be a test of patience."
       }
     ]
+  },
+  {
+    "establishment": "Petco",
+    "city": "White Marsh",
+    "state": "MD",
+    "osm_id": 4765414102,
+    "reviews": [
+      {
+        "restroom_type": "Men's Restroom",
+        "rating": 7.0,
+        "date": "2026-05-19",
+        "notes": "Clean pet store restroom. Right next to Mom's Organic Market in the same shopping center."
+      }
+    ]
   }
 ]
