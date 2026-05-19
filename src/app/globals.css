@@ -1,0 +1,27 @@
+@import 'leaflet/dist/leaflet.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 10px !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px !important;
+}

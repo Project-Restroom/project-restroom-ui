@@ -1,0 +1,61 @@
+[
+  {
+    "establishment": "Tabitha's House",
+    "city": "Edgewood",
+    "state": "MD",
+    "reviews": [
+      {
+        "restroom_type": "Unisex Restroom",
+        "youtube_url": "https://www.youtube.com/shorts/Zd8kAIFEr0U",
+        "rating": 8.0,
+        "date": "2026-05-17",
+        "notes": "Solid, clean, and dependable facility with good privacy, though a single unisex layout means you might have to wait during peak hours."
+      }
+    ]
+  },
+  {
+    "establishment": "Grocery Bargain Outlet",
+    "city": "Edgewood",
+    "state": "MD",
+    "osm_id": 5970707054,
+    "reviews": [
+      {
+        "restroom_type": "Men's Restroom",
+        "youtube_url": "https://www.youtube.com/shorts/Rpffe4LAEeY",
+        "rating": 6.5,
+        "date": "2026-05-16",
+        "notes": "Perfectly average, acceptable public restroom. No bad odor, clean floors, fully functional sink. Gets the job done safely."
+      }
+    ]
+  },
+  {
+    "establishment": "Edgewood Prime Thrift",
+    "city": "Edgewood",
+    "state": "MD",
+    "osm_id": 317135338,
+    "reviews": [
+      {
+        "restroom_type": "Men's Restroom",
+        "youtube_url": "https://www.youtube.com/shorts/MKYv7wM6QEc",
+        "rating": 2.5,
+        "date": "2026-05-16",
+        "notes": "Kinda clean. Privacy is passable if you really need to use the stall. Heard fans but can't confirm airflow."
+      }
+    ]
+  },
+  {
+    "establishment": "Mom's Organic Market",
+    "city": "White Marsh",
+    "state": "MD",
+    "osm_id": 4765414101,
+    "reviews": [
+      {
+        "restroom_type": "Men's Restroom",
+        "youtube_url": "https://www.youtube.com/shorts/9jF5cRO6AKA",
+        "rating": 8.0,
+        "date": "2026-05-18",
+        "notes": "Solid, eco-friendly setup with great cleanliness, though the single-occupancy wait times can be a test of patience."
+      }
+    ]
+  }
+]
