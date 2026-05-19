@@ -48,7 +48,7 @@ function FitBounds({
   isMobile: boolean
 }) {
   const map = useMap()
-  const zoom = isMobile ? 8 : 11
+  const zoom = isMobile ? 13 : 11
   useEffect(() => {
     if (userPos) {
       map.setView(userPos, zoom)
