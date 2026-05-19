@@ -41,25 +41,29 @@ function createUserIcon() {
 function FitBounds({
   data,
   userPos,
+  isMobile,
 }: {
   data: EstablishmentWithCoords[]
   userPos: [number, number] | null
+  isMobile: boolean
 }) {
   const map = useMap()
+  const zoom = isMobile ? 8 : 11
   useEffect(() => {
     if (userPos) {
-      map.setView(userPos, 11)
+      map.setView(userPos, zoom)
     } else if (data.length > 1) {
-      map.fitBounds(data.map((e) => [e.lat, e.lon]), { padding: [50, 50], maxZoom: 11 })
+      map.fitBounds(data.map((e) => [e.lat, e.lon]), { padding: [50, 50], maxZoom: zoom })
     } else if (data.length === 1) {
-      map.setView([data[0].lat, data[0].lon], 11)
+      map.setView([data[0].lat, data[0].lon], zoom)
     }
-  }, [data, userPos, map])
+  }, [data, userPos, zoom, map])
   return null
 }
 
 export default function MapView() {
   const [userPos, setUserPos] = useState<[number, number] | null>(null)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -80,7 +84,7 @@ export default function MapView() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://openmaptiles.org/">OpenMapTiles</a>'
         url="https://tiles.liberty-rider.com/styles/osm-liberty/{z}/{x}/{y}.png"
       />
-      <FitBounds data={establishments} userPos={userPos} />
+      <FitBounds data={establishments} userPos={userPos} isMobile={isMobile} />
       {userPos && <Marker position={userPos} icon={createUserIcon()} />}
       {establishments.map((e) => (
         <Marker
