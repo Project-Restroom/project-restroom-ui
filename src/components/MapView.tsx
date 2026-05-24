@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { EstablishmentWithCoords } from '@/lib/types'
 import { avgRating, ratingColor, getDeviceContext } from '@/lib/types'
-import { establishments } from '@/lib/coordinates'
+import { fetchEstablishments } from '@/lib/coordinates'
 import ReviewCard from './ReviewCard'
 
 function createMarkerIcon(rating: number) {
@@ -63,6 +63,8 @@ function FitBounds({
 
 export default function MapView() {
   const [userPos, setUserPos] = useState<[number, number] | null>(null)
+  const [data, setData] = useState<EstablishmentWithCoords[]>([])
+  const [loading, setLoading] = useState(true)
   const { isMobile } = getDeviceContext()
 
   useEffect(() => {
@@ -72,6 +74,33 @@ export default function MapView() {
       { enableHighAccuracy: false, maximumAge: 10000 }
     )
   }, [])
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const establishments = await fetchEstablishments()
+      setData(establishments)
+    } catch (e) {
+      console.error('Failed to load establishments:', e)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  if (loading) {
+    return (
+      <div style={{
+        height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#f1f5f9', color: '#64748b', fontSize: 18,
+      }}>
+        Loading establishments…
+      </div>
+    )
+  }
 
   return (
     <MapContainer
@@ -84,9 +113,9 @@ export default function MapView() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://openmaptiles.org/">OpenMapTiles</a>'
         url="https://tiles.liberty-rider.com/styles/osm-liberty/{z}/{x}/{y}.png"
       />
-      <FitBounds data={establishments} userPos={userPos} isMobile={isMobile} />
+      <FitBounds data={data} userPos={userPos} isMobile={isMobile} />
       {userPos && <Marker position={userPos} icon={createUserIcon()} />}
-      {establishments.map((e) => (
+      {data.map((e) => (
         <Marker
           key={e.establishment}
           position={[e.lat, e.lon]}
@@ -112,6 +141,31 @@ export default function MapView() {
           </Popup>
         </Marker>
       ))}
+      <button
+        onClick={load}
+        style={{
+          position: 'absolute',
+          bottom: 24,
+          right: 24,
+          zIndex: 1000,
+          width: 48,
+          height: 48,
+          borderRadius: 24,
+          border: 'none',
+          background: '#2563eb',
+          color: 'white',
+          fontSize: 22,
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: 1,
+        }}
+        aria-label="Refresh data"
+      >
+        ↻
+      </button>
     </MapContainer>
   )
 }

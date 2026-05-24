@@ -1,45 +1,26 @@
 import type { Establishment, EstablishmentWithCoords } from '@/lib/types'
-import reviewsData from '@/data/reviews.json'
+
+const GITHUB_URL =
+  'https://raw.githubusercontent.com/Project-Restroom/project-restroom/refs/heads/main/_data/reviews.json'
 
 const OSM_API = 'https://api.openstreetmap.org/api/0.6'
 const NOMINATIM = 'https://nominatim.openstreetmap.org'
 
 type Coord = { lat: number; lon: number }
 
-const preResolved: Record<string, Coord> = {
-  "Tabitha's House": { lat: 39.4187, lon: -76.2944 },
-  'Grocery Bargain Outlet': { lat: 39.4343, lon: -76.3158 },
-  'Edgewood Prime Thrift': { lat: 39.4348, lon: -76.3126 },
-  "Mom's Organic Market": { lat: 39.3677, lon: -76.4533 },
-  'Petco': { lat: 39.3678, lon: -76.4535 },
-}
-
-const osmTypes: Record<string, 'node' | 'way' | 'relation'> = {
-  'Edgewood Prime Thrift': 'way',
-}
-
-const raw = reviewsData as Establishment[]
-
-export const establishments: EstablishmentWithCoords[] = (() => {
-  const result: EstablishmentWithCoords[] = []
-  for (const e of raw) {
-    const c = preResolved[e.establishment]
-    if (c) result.push({ ...e, ...c, osm_type: osmTypes[e.establishment] })
-  }
-  return result
-})()
-
 async function tryOsmApi(id: number, type: 'node' | 'way' | 'relation'): Promise<Coord | null> {
   const res = await fetch(`${OSM_API}/${type}/${id}.json`)
   if (!res.ok) return null
-  const data = await res.json()
+  let data: any
+  try { data = await res.json() } catch { return null }
   const el = data.elements?.[0]
   if (!el) return null
   if (type === 'node') return { lat: el.lat, lon: el.lon }
   if (type === 'way' && el.nodes?.length) {
     const nodesRes = await fetch(`${OSM_API}/nodes?nodes=${el.nodes.join(',')}`)
     if (!nodesRes.ok) return null
-    const nodesData = await nodesRes.json()
+    let nodesData: any
+    try { nodesData = await nodesRes.json() } catch { return null }
     const nodes = nodesData.elements?.filter((n: any) => n.lat != null)
     if (!nodes?.length) return null
     return {
@@ -53,11 +34,11 @@ async function tryOsmApi(id: number, type: 'node' | 'way' | 'relation'): Promise
 async function resolveByOsmId(
   id: number,
   knownType?: 'node' | 'way' | 'relation'
-): Promise<Coord | null> {
+): Promise<{ lat: number; lon: number; osm_type: 'node' | 'way' | 'relation' } | null> {
   const types = knownType ? [knownType] : (['node', 'way', 'relation'] as const)
   for (const t of types) {
     const r = await tryOsmApi(id, t)
-    if (r) return r
+    if (r) return { ...r, osm_type: t }
   }
   return null
 }
@@ -69,35 +50,32 @@ async function geocode(name: string, city: string, state: string): Promise<Coord
     { headers: { 'User-Agent': 'ProjectRestroomWeb/1.0' } }
   )
   if (!res.ok) return null
-  const data = await res.json()
+  let data: any
+  try { data = await res.json() } catch { return null }
   if (!data.length) return null
   return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) }
 }
 
-export async function resolveEstablishment(
-  e: Establishment
-): Promise<EstablishmentWithCoords> {
-  const pre = preResolved[e.establishment]
-  if (pre) return { ...e, ...pre, osm_type: osmTypes[e.establishment] }
-  if (e.osm_id) {
-    const osm = await resolveByOsmId(e.osm_id, osmTypes[e.establishment])
-    if (osm) return { ...e, ...osm, osm_type: osmTypes[e.establishment] }
-  }
-  const geo = await geocode(e.establishment, e.city, e.state)
-  if (geo) return { ...e, ...geo }
-  throw new Error(`Could not resolve coordinates for ${e.establishment}`)
-}
-
-export async function getAllEstablishments(): Promise<EstablishmentWithCoords[]> {
+export async function fetchEstablishments(): Promise<EstablishmentWithCoords[]> {
+  const res = await fetch(GITHUB_URL)
+  if (!res.ok) throw new Error('Failed to fetch reviews.json from GitHub')
+  let data: Establishment[]
+  try { data = await res.json() } catch { throw new Error('Invalid JSON from GitHub') }
   const results: EstablishmentWithCoords[] = []
-  for (const e of raw) {
-    try {
-      results.push(await resolveEstablishment(e))
-    } catch {
-      console.warn(`Skipping ${e.establishment}: unable to resolve`)
+  for (const e of data) {
+    if (e.osm_id) {
+      const osm = await resolveByOsmId(e.osm_id)
+      if (osm) {
+        results.push({ ...e, lat: osm.lat, lon: osm.lon, osm_type: osm.osm_type })
+        continue
+      }
     }
+    const geo = await geocode(e.establishment, e.city, e.state)
+    if (geo) {
+      results.push({ ...e, ...geo })
+      continue
+    }
+    console.warn(`Could not resolve coordinates for ${e.establishment}`)
   }
   return results
 }
-
-
